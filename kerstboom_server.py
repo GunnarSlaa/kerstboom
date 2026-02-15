@@ -29,29 +29,23 @@ def turnoff():
 
 @app.route('/boom/<effect>', methods=['POST'])
 def boom(effect):
-    print(f"boom", file=sys.stderr)
-    print(request.form, file=sys.stderr)
     colors = []
     for i in range(10):
         color = request.form.get(str(i))
         if color == None:
             break
         colors.append(color)
-    print(colors)
     start_effect(effect, colors)
     return json.dumps({'success':True, 'data': request.form}), 200, {'ContentType':'application/json'}
 
 @app.route('/preview/<effect>', methods=['POST'])
 def preview(effect):
-    print(f"boom", file=sys.stderr)
-    print(request.form, file=sys.stderr)
     colors = []
     for i in range(10):
         color = request.form.get(str(i))
         if color == None:
             break
         colors.append(color)
-    print(colors)
     return json.dumps({'success':True, 'data': request.form}), 200, {'ContentType':'application/json'}
         
 if __name__ == "__main__":
