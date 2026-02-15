@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Kerstboom</title>
+</head>
+<body>
+
+<ol>
+{%for effect in effects%}
+
+    <li><a href='effect/{{effect}}'>{{effect}}</a>  </li>
+{%endfor%}
+    <li><a href='effect/turnoff'>Turn off</a>  </li>
+
+</ol>
+
+</body>
+</html>

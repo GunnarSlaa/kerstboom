@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>{{name}} effect</title>
+    
+</head>
+<body>
+
+    <div style="display:flex; height:95vh">
+        <div id="colors", style="width:200px; height:95vh">
+            {%for default_color in default_colors%}
+            <select name = "{{ loop.index0 }}" form="colors_form">
+                {%for color in colors%}
+                <option value="{{color}}" {% if color == default_color %} selected="selected"{%endif%}>{{color}}</option>
+                {%endfor%}
+            </select>
+            {%endfor%}
+            <form id="colors_form">
+                <input type="submit" id="preview_button" value="Preview" onclick="on_click(this.form, 'preview')">
+                <input type="submit" id="boom_button" value="Boom" onclick="on_click(this.form, 'boom')">
+            </form>
+        </div>
+        <div id="chart", class="chart", style="flex-grow:1"></div>
+    </div>
+
+</body>
+
+<script src="https://cdn.plot.ly/plotly-3.3.0.min.js"></script>
+<script>
+    var graphs = {{ graphJSON | safe }};
+    Plotly.newPlot('chart',graphs);
+</script>
+<script>
+    function on_click(form, action){
+        event.preventDefault();
+        console.log("on_click")
+        console.log(action)
+        const formData = new FormData(form);
+        response = fetch(`/${action}/{{name}}`, {
+            method: 'POST',
+            body: formData,
+        });
+        console.log('Completed!', response);
+    }
+</script>
+</html>
