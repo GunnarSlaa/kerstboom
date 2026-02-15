@@ -3,7 +3,6 @@ import os
 import signal
 from pi5neo import Pi5Neo
 import plotly.express as px
-from enum import Enum
 
 LIGHTS_COUNT = 350
 
@@ -98,14 +97,20 @@ class Effect:
         output = [[*i, 0, 0] for i in output]
         if not colors:
             colors = [COLORS[i] for i in self.default_colors]
+        #Plotly needs all colors present in the first frame
+        for color in colors:
+            output.append([-10,-10,0,f'rgb({','.join(str(x) for x in color[1])})', 0])
         self.setup(self, coords, colors)
         for frame in range(50 * steprate):
-            colors = self.step(self, lights)
-            print(colors)
+            colors = self.step(self, lights)                
             if frame % steprate == 0:
                 for light in range(LIGHTS_COUNT):
                     output[int(frame/steprate)*lights + light][3] = f'rgb({','.join(str(x) for x in colors[light][1])})'
                     output[int(frame/steprate)*lights + light][4] = int(frame/steprate)
         fig = px.scatter_3d(output, x=0, y=1, z=2, color=3, animation_frame=4, color_discrete_map='identity')
+        fig.update_layout(
+            scene = dict(
+                xaxis = dict(range=[-1,1],),
+                yaxis = dict(range=[-1,1],),))
         return fig
 
