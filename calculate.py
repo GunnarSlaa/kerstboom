@@ -1,8 +1,8 @@
 import statistics
-import matplotlib.pyplot as plt
+import plotly.express as px
+from settings import *
 
-lights=350
-minVal=100
+
 with open("minY") as f:
     minY = f.read().splitlines()
     minY = [[int(line.split()[1].split('.')[0]), int(line.split('(')[1].split(',')[0]), int(line.split()[3].split(')')[0])] for line in minY]
@@ -16,45 +16,52 @@ with open("plusX") as f:
     plusX = f.read().splitlines()
     plusX = [[int(line.split()[1].split('.')[0]), int(line.split('(')[1].split(',')[0]), int(line.split()[3].split(')')[0])] for line in plusX]
 
-x_list = []
-y_list = []
-z_list = []
+coords = []
     
-for i in range(lights):
-    zs = []
-    xs = []
-    ys = []
-    if minY[i][0]>minVal:
+for i in range(LIGHTS_COUNT):
+    xs, ys, zs = [], [], []
+    if minY[i][0]>CALIBRATE_MIN_VAL:
         zs.append(minY[i][2])
         xs.append(minY[i][1])
-    if minX[i][0]>minVal:
+    if minX[i][0]>CALIBRATE_MIN_VAL:
         zs.append(minX[i][2])
-        ys.append(720 - minX[i][1])
-    if plusY[i][0]>minVal:
+        ys.append(PICTURE_WIDTH - minX[i][1])
+    if plusY[i][0]>CALIBRATE_MIN_VAL:
         zs.append(plusY[i][2])
-        xs.append(720 - plusY[i][1])
-    if plusX[i][0]>minVal:
+        xs.append(PICTURE_WIDTH - plusY[i][1])
+    if plusX[i][0]>CALIBRATE_MIN_VAL:
         zs.append(plusX[i][2])
         ys.append(plusX[i][1])
-    if len(zs) == 0:
-        print("Oh no!")
     if len(xs) == 0:
-        print("no x!")
         xs.append(0)
     if len(ys) == 0:
-        print("no y!")
         ys.append(0)
+    if len(zs) == 0:
+        zs.append(0)
     z = statistics.mean(zs)
     x = statistics.mean(xs)
     y = statistics.mean(ys)
-    x_list.append(x)
-    y_list.append(y)
-    z_list.append(z)
-    with open("coords", "a") as f:
-        f.write(f'{x} {y} {z}\n')
+    coords.append([x,y,z])
 
-fig = plt.figure(figsize=(12, 12))
-ax = fig.add_subplot(projection='3d')
-ax.scatter(x_list, y_list, z_list)
-ax.plot(x_list, y_list, z_list)
-plt.show()
+for i in range(LIGHTS_COUNT):
+    for axis in range(3):
+        if coords[i][axis] == 0:
+            coords[i][axis] = (coords[i-1][axis] + coords[i+1][axis]) / 2
+
+maxZ = max([coord[2] for coord in coords])
+minZ = min([coord[2] for coord in coords])
+midZ = (maxZ + minZ) / 2
+
+for i in range(LIGHTS_COUNT):
+    for axis in range(3):
+        if coords[i][axis] < 1:
+            coords[i][axis] = (coords[i-1][axis] + coords[i+1][axis]) / 2
+    coords[i][0] = (coords[i][0]  / (PICTURE_WIDTH / 2)) - 1
+    coords[i][1] = (coords[i][1]  / (PICTURE_WIDTH / 2)) - 1
+    coords[i][2] = - (coords[i][2] - midZ) / (midZ - minZ)
+    with open("coords", "a") as f:
+        f.write(f'{coords[i][0]} {coords[i][1]} {coords[i][2]}\n')
+
+fig = px.line_3d(coords, x=0, y=1, z=2, markers=True)
+fig.update_layout(yaxis_range=[-1,1])
+fig.show()
