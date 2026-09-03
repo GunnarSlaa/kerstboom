@@ -7,7 +7,7 @@ no_neighbours = 0
 
 neo = Pi5Neo('/dev/spidev0.0',lights,800, quiet_mode=True)
 
-with open("normcoords") as f:
+with open("coords") as f:
     coords = f.read().splitlines()
     coords = [[float(j) for j in i.split()] for i in coords]
 

@@ -63,7 +63,7 @@ def claim_process():
 
 def get_coords():
     script_dir = os.path.dirname(__file__)
-    with open(os.path.join(script_dir, 'normcoords')) as f:
+    with open(os.path.join(script_dir, 'coords')) as f:
         coords = f.read().splitlines()
         coords = [[float(j) for j in i.split()] for i in coords]
     return coords
